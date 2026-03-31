@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PropertyType {
+  APARTMENT
+  VILLA
+  PLOT
+  COMMERCIAL
+}
+
+model User {
+  id              String          @id @default(cuid())
+  name            String
+  email           String          @unique
+  passwordHash    String
+  phone           String?
+  phoneVerified   Boolean         @default(false)
+  recentlyViewed  Json?           // persisted recently-viewed list (up to 20 listing IDs)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  savedListings   SavedListing[]
+  passwordResets  PasswordReset[]
+  otpRecords      OtpRecord[]
+}
+
+model OtpRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  phone     String
+  otpHash   String   // hashed OTP
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique // hashed token
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Builder {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  logoUrl  String?
+  listings Listing[]
+}
+
+model Listing {
+  id              String       @id @default(cuid())
+  title           String
+  description     String
+  price           Int          // in INR, whole units
+  propertyType    PropertyType
+  bedrooms        Int?
+  bathrooms       Int?
+  address         String
+  area            String       // locality / neighbourhood
+  city            String       @default("Bangalore")
+  lat             Float?
+  lng             Float?
+  images          String[]     // Cloudinary URLs
+  amenities       String[]
+  agentPhone      String
+  agentWhatsApp   String
+  builderId       String?
+  builder         Builder?     @relation(fields: [builderId], references: [id])
+  floorPlans      FloorPlan[]
+  savedBy         SavedListing[]
+  available       Boolean      @default(true)
+  featured        Boolean      @default(false)
+  limitedOffer    Boolean      @default(false)
+  offerExpiresAt  DateTime?
+  underrated      Boolean      @default(false)
+  yearBuilt       Int?
+  possessionDate  String?      // month-year string e.g. "March 2026"
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model FloorPlan {
+  id        String  @id @default(cuid())
+  listingId String
+  imageUrl  String
+  order     Int     @default(0)
+  listing   Listing @relation(fields: [listingId], references: [id])
+}
+
+model SavedListing {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  savedAt   DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  listing   Listing  @relation(fields: [listingId], references: [id])
+
+  @@unique([userId, listingId])
+}
