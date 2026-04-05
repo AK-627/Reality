@@ -13,12 +13,20 @@ export interface FloorPlan {
   order: number;
 }
 
+export interface BlueprintVariant {
+  id: string;
+  bhk?: string;
+  area?: number;
+  areaUnit?: "sqft" | "sqm";
+  layoutName?: string;
+  imageUrl: string;
+}
+
 export interface Listing {
   id: string;
   title: string;
   description: string;
   price: number;
-  discountedPrice?: number; // populated when user has verified phone
   propertyType: "APARTMENT" | "VILLA" | "PLOT" | "COMMERCIAL";
   bedrooms?: number;
   bathrooms?: number;
@@ -42,6 +50,11 @@ export interface Listing {
   yearBuilt?: number;
   possessionDate?: string; // month-year string e.g. "March 2026"
   constructionStatus?: "READY_TO_MOVE" | "UNDER_CONSTRUCTION";
+  blueprintUrl?: string;
+  bhkOptions?: string[];
+  blueprintVariants?: BlueprintVariant[];
+  size?: number;
+  sizeUnit?: "sqft" | "acre";
   createdAt: string;
   updatedAt: string;
 }

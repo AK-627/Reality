@@ -1,12 +1,4 @@
 /**
- * Apply the 1% phone verification discount to a price.
- * Returns Math.round(price * 0.99).
- */
-export function applyPhoneDiscount(price: number): number {
-  return Math.round(price * 0.99);
-}
-
-/**
  * Format a number as Indian Rupees (INR) with the ₹ symbol
  * and Indian number grouping (lakhs / crores).
  *

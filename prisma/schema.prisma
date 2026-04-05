@@ -10,13 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum PropertyType {
-  APARTMENT
-  VILLA
-  PLOT
-  COMMERCIAL
-}
-
 model User {
   id              String          @id @default(cuid())
   name            String
@@ -24,7 +17,7 @@ model User {
   passwordHash    String
   phone           String?
   phoneVerified   Boolean         @default(false)
-  recentlyViewed  Json?           // persisted recently-viewed list (up to 20 listing IDs)
+  recentlyViewed  String?         // JSON string of persisted recently-viewed list (up to 20 listing IDs)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   savedListings   SavedListing[]
@@ -66,7 +59,7 @@ model Listing {
   title           String
   description     String
   price           Int          // in INR, whole units
-  propertyType    PropertyType
+  propertyType    String
   bedrooms        Int?
   bathrooms       Int?
   address         String
@@ -74,14 +67,15 @@ model Listing {
   city            String       @default("Bangalore")
   lat             Float?
   lng             Float?
-  images          String[]     // Cloudinary URLs
-  amenities       String[]
+  images          String       // JSON string of Cloudinary URLs
+  amenities       String       // JSON string of amenities
   agentPhone      String
   agentWhatsApp   String
   builderId       String?
   builder         Builder?     @relation(fields: [builderId], references: [id])
   floorPlans      FloorPlan[]
   savedBy         SavedListing[]
+  enquiries       Enquiry[]
   available       Boolean      @default(true)
   featured        Boolean      @default(false)
   limitedOffer    Boolean      @default(false)
@@ -89,6 +83,11 @@ model Listing {
   underrated      Boolean      @default(false)
   yearBuilt       Int?
   possessionDate  String?      // month-year string e.g. "March 2026"
+  blueprintUrl    String?      // URL to blueprint image
+  bhkOptions      String?      // JSON string of BHK options like ["2BHK", "3BHK"]
+  blueprintVariants String?    // JSON string of blueprint variants with bhk/area/layout/image
+  size            Float?       // size in sqft or acre
+  sizeUnit        String?      // "sqft" or "acre"
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 }
@@ -110,4 +109,27 @@ model SavedListing {
   listing   Listing  @relation(fields: [listingId], references: [id])
 
   @@unique([userId, listingId])
+}
+
+model Enquiry {
+  id        String   @id @default(cuid())
+  listingId String
+  name      String
+  email     String
+  phone     String
+  message   String
+  status    String   @default("new") // new, contacted, closed
+  notes     String?  // admin notes
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String
+  otpHash   String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

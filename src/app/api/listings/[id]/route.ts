@@ -1,8 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
-import { applyPhoneDiscount } from "@/lib/utils";
 import type { Listing, ListingDetailResponse } from "@/lib/types";
+
+function parseJsonSafe<T>(value: unknown, fallback: T): T {
+  if (value == null) return fallback;
+  if (typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function parseStringArraySafe(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+  if (typeof value !== "string") return [];
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  if (!trimmed.startsWith("[")) return [trimmed.replace(/^"|"$/g, "").trim()].filter(Boolean);
+  return parseJsonSafe<string[]>(trimmed, [])
+    .map((v) => String(v).trim())
+    .filter(Boolean);
+}
+
+function normalizeBlueprintVariants(value: unknown): Listing["blueprintVariants"] {
+  const rows = Array.isArray(value) ? value : parseJsonSafe<unknown[]>(value, []);
+  return rows.reduce<NonNullable<Listing["blueprintVariants"]>>((acc, item, index) => {
+      if (!item || typeof item !== "object") return acc;
+      const row = item as Record<string, unknown>;
+      const imageUrl = typeof row.imageUrl === "string" ? row.imageUrl.trim() : "";
+      if (!imageUrl) return acc;
+      const areaRaw = row.area;
+      const area =
+        typeof areaRaw === "number"
+          ? areaRaw
+          : typeof areaRaw === "string" && areaRaw.trim()
+          ? Number(areaRaw)
+          : undefined;
+      acc.push({
+        id: typeof row.id === "string" && row.id.trim() ? row.id.trim() : `bp_${index + 1}`,
+        bhk: typeof row.bhk === "string" && row.bhk.trim() ? row.bhk.trim() : undefined,
+        layoutName:
+          typeof row.layoutName === "string" && row.layoutName.trim()
+            ? row.layoutName.trim()
+            : undefined,
+        area: Number.isFinite(area as number) ? area : undefined,
+        areaUnit: row.areaUnit === "sqm" ? "sqm" : row.areaUnit === "sqft" ? "sqft" : undefined,
+        imageUrl,
+      });
+      return acc;
+    }, []);
+}
 
 export async function GET(
   request: NextRequest,
@@ -12,7 +61,6 @@ export async function GET(
     const { id } = await params;
 
     // Determine auth state
-    let phoneVerified = false;
     let userId: string | null = null;
 
     try {
@@ -23,7 +71,6 @@ export async function GET(
           select: { id: true, phoneVerified: true },
         });
         if (user) {
-          phoneVerified = user.phoneVerified;
           userId = user.id;
         }
       }
@@ -63,7 +110,7 @@ export async function GET(
       title: raw.title,
       description: raw.description,
       price: raw.price,
-      propertyType: raw.propertyType,
+      propertyType: raw.propertyType as "APARTMENT" | "VILLA" | "PLOT" | "COMMERCIAL",
       bedrooms: raw.bedrooms ?? undefined,
       bathrooms: raw.bathrooms ?? undefined,
       address: raw.address,
@@ -71,8 +118,8 @@ export async function GET(
       city: raw.city,
       lat: raw.lat ?? undefined,
       lng: raw.lng ?? undefined,
-      images: raw.images,
-      amenities: raw.amenities,
+      images: parseStringArraySafe(raw.images),
+      amenities: parseStringArraySafe(raw.amenities),
       agentPhone: raw.agentPhone,
       agentWhatsApp: raw.agentWhatsApp,
       builder: raw.builder
@@ -97,13 +144,14 @@ export async function GET(
       yearBuilt: raw.yearBuilt ?? undefined,
       possessionDate: raw.possessionDate ?? undefined,
       constructionStatus: constructionStatus as Listing["constructionStatus"],
+      blueprintUrl: raw.blueprintUrl ?? undefined,
+      bhkOptions: parseStringArraySafe(raw.bhkOptions),
+      blueprintVariants: normalizeBlueprintVariants((raw as any).blueprintVariants),
+      size: raw.size ?? undefined,
+      sizeUnit: (raw.sizeUnit as "sqft" | "acre") ?? undefined,
       createdAt: raw.createdAt.toISOString(),
       updatedAt: raw.updatedAt.toISOString(),
     };
-
-    if (phoneVerified) {
-      listing.discountedPrice = applyPhoneDiscount(raw.price);
-    }
 
     const response: ListingDetailResponse = { listing };
     return NextResponse.json(response);

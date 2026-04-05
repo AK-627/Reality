@@ -3,6 +3,8 @@ import { isAdminAuthenticated } from "@/lib/adminAuth";
 import prisma from "@/lib/prisma";
 import AdminListingsClient from "./AdminListingsClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   if (!(await isAdminAuthenticated())) redirect("/admin/login");
 

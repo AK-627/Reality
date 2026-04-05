@@ -24,12 +24,13 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "^4.2.1",
-    "resend": "^6.9.4",
+    "resend": "^6.10.0",
     "twilio": "^5.13.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@prisma/client": "^5.22.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

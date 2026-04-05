@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-import { PrismaClient, PropertyType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -59,7 +59,7 @@ async function main() {
       description:
         'Spacious 3-bedroom apartment in the heart of Whitefield with panoramic lake views, premium fittings, and world-class amenities. Ready to move in.',
       price: 12500000,
-      propertyType: PropertyType.APARTMENT,
+      propertyType: 'APARTMENT',
       bedrooms: 3,
       bathrooms: 2,
       address: 'Varthur Road, Whitefield',
@@ -67,12 +67,12 @@ async function main() {
       city: 'Bangalore',
       lat: 12.9698,
       lng: 77.7499,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/apt1-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/apt1-living.jpg',
         'https://res.cloudinary.com/demo/image/upload/apt1-kitchen.jpg',
-      ],
-      amenities: ['Swimming Pool', 'Gym', 'Clubhouse', 'Children Play Area', '24/7 Security', 'Power Backup'],
+      ]),
+      amenities: JSON.stringify(['Swimming Pool', 'Gym', 'Clubhouse', 'Children Play Area', '24/7 Security', 'Power Backup']),
       agentPhone: '+919876543210',
       agentWhatsApp: '919876543210',
       builderId: prestige.id,
@@ -81,6 +81,10 @@ async function main() {
       offerExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       yearBuilt: 2022,
       possessionDate: 'December 2022',
+      blueprintUrl: 'https://res.cloudinary.com/demo/image/upload/apt1-blueprint.jpg',
+      bhkOptions: JSON.stringify(['2BHK', '3BHK', '4BHK']),
+      size: 1500,
+      sizeUnit: 'sqft',
     },
   });
 
@@ -98,7 +102,7 @@ async function main() {
       description:
         'Affordable 2-bedroom apartment in a gated community near Sarjapur Road. Excellent connectivity to Electronic City and Whitefield IT corridors.',
       price: 6800000,
-      propertyType: PropertyType.APARTMENT,
+      propertyType: 'APARTMENT',
       bedrooms: 2,
       bathrooms: 2,
       address: 'Panathur Road, Sarjapur',
@@ -106,16 +110,19 @@ async function main() {
       city: 'Bangalore',
       lat: 12.9010,
       lng: 77.6960,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/apt2-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/apt2-bedroom.jpg',
-      ],
-      amenities: ['Gym', 'Jogging Track', 'Children Play Area', 'Visitor Parking'],
+      ]),
+      amenities: JSON.stringify(['Gym', 'Jogging Track', 'Children Play Area', 'Visitor Parking']),
       agentPhone: '+919876543211',
       agentWhatsApp: '919876543211',
       builderId: sobha.id,
       underrated: true,
       possessionDate: 'June 2025',
+      bhkOptions: JSON.stringify(['2BHK', '3BHK']),
+      size: 1200,
+      sizeUnit: 'sqft',
     },
   });
 
@@ -126,7 +133,7 @@ async function main() {
       description:
         'Luxury penthouse with private terrace and stunning views of Hebbal Lake. Premium specifications throughout with Italian marble flooring.',
       price: 28000000,
-      propertyType: PropertyType.APARTMENT,
+      propertyType: 'APARTMENT',
       bedrooms: 4,
       bathrooms: 4,
       address: 'Outer Ring Road, Hebbal',
@@ -134,12 +141,12 @@ async function main() {
       city: 'Bangalore',
       lat: 13.0358,
       lng: 77.5970,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/apt3-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/apt3-terrace.jpg',
         'https://res.cloudinary.com/demo/image/upload/apt3-living.jpg',
-      ],
-      amenities: ['Private Terrace', 'Swimming Pool', 'Concierge', 'Gym', 'Spa', 'Valet Parking'],
+      ]),
+      amenities: JSON.stringify(['Private Terrace', 'Swimming Pool', 'Concierge', 'Gym', 'Spa', 'Valet Parking']),
       agentPhone: '+919876543212',
       agentWhatsApp: '919876543212',
       builderId: brigade.id,
@@ -155,7 +162,7 @@ async function main() {
       description:
         'Exclusive villa on a championship golf course near Devanahalli. Sprawling 6,000 sq ft with private pool, landscaped garden, and butler service.',
       price: 75000000,
-      propertyType: PropertyType.VILLA,
+      propertyType: 'VILLA',
       bedrooms: 5,
       bathrooms: 5,
       address: 'Nandi Hills Road, Devanahalli',
@@ -163,12 +170,12 @@ async function main() {
       city: 'Bangalore',
       lat: 13.2257,
       lng: 77.7173,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/villa1-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/villa1-pool.jpg',
         'https://res.cloudinary.com/demo/image/upload/villa1-garden.jpg',
-      ],
-      amenities: ['Private Pool', 'Golf Course Access', 'Butler Service', 'Home Theatre', 'Wine Cellar', 'Gym'],
+      ]),
+      amenities: JSON.stringify(['Private Pool', 'Golf Course Access', 'Butler Service', 'Home Theatre', 'Wine Cellar', 'Gym']),
       agentPhone: '+919876543213',
       agentWhatsApp: '919876543213',
       builderId: prestige.id,
@@ -192,7 +199,7 @@ async function main() {
       description:
         'Charming row villa surrounded by 30 acres of forest. Ideal for families seeking a serene lifestyle with easy access to Kanakapura Road.',
       price: 18500000,
-      propertyType: PropertyType.VILLA,
+      propertyType: 'VILLA',
       bedrooms: 3,
       bathrooms: 3,
       address: 'Kanakapura Road, Jigani',
@@ -200,11 +207,11 @@ async function main() {
       city: 'Bangalore',
       lat: 12.7969,
       lng: 77.5530,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/villa2-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/villa2-garden.jpg',
-      ],
-      amenities: ['Forest View', 'Clubhouse', 'Swimming Pool', 'Jogging Track', 'Children Play Area'],
+      ]),
+      amenities: JSON.stringify(['Forest View', 'Clubhouse', 'Swimming Pool', 'Jogging Track', 'Children Play Area']),
       agentPhone: '+919876543214',
       agentWhatsApp: '919876543214',
       builderId: godrej.id,
@@ -222,17 +229,17 @@ async function main() {
       description:
         'BBMP-approved residential plot in a gated layout with underground utilities, wide roads, and landscaped parks. Ideal for custom home construction.',
       price: 9600000,
-      propertyType: PropertyType.PLOT,
+      propertyType: 'PLOT',
       address: 'Yelahanka New Town, Yelahanka',
       area: 'Yelahanka',
       city: 'Bangalore',
       lat: 13.1007,
       lng: 77.5963,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/plot1-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/plot1-layout.jpg',
-      ],
-      amenities: ['Gated Community', 'Underground Utilities', 'Wide Roads', 'Landscaped Parks', 'Security'],
+      ]),
+      amenities: JSON.stringify(['Gated Community', 'Underground Utilities', 'Wide Roads', 'Landscaped Parks', 'Security']),
       agentPhone: '+919876543215',
       agentWhatsApp: '919876543215',
       builderId: brigade.id,
@@ -247,16 +254,16 @@ async function main() {
       description:
         'Premium corner plot with extra frontage in a fully developed layout. RERA registered, clear title, and immediate registration available.',
       price: 14400000,
-      propertyType: PropertyType.PLOT,
+      propertyType: 'PLOT',
       address: 'Electronic City Phase 2, Hosur Road',
       area: 'Hosur Road',
       city: 'Bangalore',
       lat: 12.8399,
       lng: 77.6770,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/plot2-main.jpg',
-      ],
-      amenities: ['Corner Plot', 'RERA Registered', 'Clear Title', 'Gated Layout', 'Street Lighting'],
+      ]),
+      amenities: JSON.stringify(['Corner Plot', 'RERA Registered', 'Clear Title', 'Gated Layout', 'Street Lighting']),
       agentPhone: '+919876543216',
       agentWhatsApp: '919876543216',
       builderId: sobha.id,
@@ -271,18 +278,18 @@ async function main() {
       description:
         'Premium Grade A office space in the heart of Koramangala. Floor-to-ceiling glass, raised flooring, 100% power backup, and dedicated parking.',
       price: 45000000,
-      propertyType: PropertyType.COMMERCIAL,
+      propertyType: 'COMMERCIAL',
       address: '80 Feet Road, Koramangala',
       area: 'Koramangala',
       city: 'Bangalore',
       lat: 12.9352,
       lng: 77.6245,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/comm1-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/comm1-interior.jpg',
         'https://res.cloudinary.com/demo/image/upload/comm1-lobby.jpg',
-      ],
-      amenities: ['Grade A Office', 'Raised Flooring', '100% Power Backup', 'Dedicated Parking', 'Cafeteria', 'Conference Rooms'],
+      ]),
+      amenities: JSON.stringify(['Grade A Office', 'Raised Flooring', '100% Power Backup', 'Dedicated Parking', 'Cafeteria', 'Conference Rooms']),
       agentPhone: '+919876543217',
       agentWhatsApp: '919876543217',
       builderId: prestige.id,
@@ -306,17 +313,17 @@ async function main() {
       description:
         'High-footfall retail space on the ground floor of Brigade Gateway mall. Ideal for F&B, fashion, or lifestyle brands. Immediate possession.',
       price: 16000000,
-      propertyType: PropertyType.COMMERCIAL,
+      propertyType: 'COMMERCIAL',
       address: '26/1 Dr Rajkumar Road, Indiranagar',
       area: 'Indiranagar',
       city: 'Bangalore',
       lat: 12.9784,
       lng: 77.6408,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/comm2-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/comm2-frontage.jpg',
-      ],
-      amenities: ['Ground Floor', 'High Footfall', 'Ample Parking', 'Power Backup', 'CCTV'],
+      ]),
+      amenities: JSON.stringify(['Ground Floor', 'High Footfall', 'Ample Parking', 'Power Backup', 'CCTV']),
       agentPhone: '+919876543218',
       agentWhatsApp: '919876543218',
       builderId: brigade.id,
@@ -333,7 +340,7 @@ async function main() {
       description:
         'Compact and efficient 1-bedroom studio apartment perfect for young professionals working in Electronic City. Fully furnished option available.',
       price: 3900000,
-      propertyType: PropertyType.APARTMENT,
+      propertyType: 'APARTMENT',
       bedrooms: 1,
       bathrooms: 1,
       address: 'Electronic City Phase 1',
@@ -341,11 +348,11 @@ async function main() {
       city: 'Bangalore',
       lat: 12.8456,
       lng: 77.6603,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/apt4-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/apt4-studio.jpg',
-      ],
-      amenities: ['Gym', 'Rooftop Garden', 'Co-working Space', 'Laundry', 'Visitor Parking'],
+      ]),
+      amenities: JSON.stringify(['Gym', 'Rooftop Garden', 'Co-working Space', 'Laundry', 'Visitor Parking']),
       agentPhone: '+919876543219',
       agentWhatsApp: '919876543219',
       builderId: godrej.id,
@@ -361,7 +368,7 @@ async function main() {
       description:
         'Standalone 4-bedroom villa on a 3600 sqft plot with a private garden and covered car park. No maintenance charges. Freehold property.',
       price: 32000000,
-      propertyType: PropertyType.VILLA,
+      propertyType: 'VILLA',
       bedrooms: 4,
       bathrooms: 3,
       address: 'JP Nagar 7th Phase, Bannerghatta Road',
@@ -369,11 +376,11 @@ async function main() {
       city: 'Bangalore',
       lat: 12.8731,
       lng: 77.5921,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/villa3-main.jpg',
         'https://res.cloudinary.com/demo/image/upload/villa3-garden.jpg',
-      ],
-      amenities: ['Private Garden', 'Covered Car Park', 'Freehold', 'Bore Well', 'Solar Panels'],
+      ]),
+      amenities: JSON.stringify(['Private Garden', 'Covered Car Park', 'Freehold', 'Bore Well', 'Solar Panels']),
       agentPhone: '+919876543220',
       agentWhatsApp: '919876543220',
       featured: false,
@@ -388,16 +395,16 @@ async function main() {
       description:
         'NA-converted 1-acre plot on the Doddaballapur Road with excellent road frontage. Suitable for farmhouse, resort, or residential development.',
       price: 22000000,
-      propertyType: PropertyType.PLOT,
+      propertyType: 'PLOT',
       address: 'Doddaballapur Road, Rajanukunte',
       area: 'Doddaballapur',
       city: 'Bangalore',
       lat: 13.1650,
       lng: 77.5370,
-      images: [
+      images: JSON.stringify([
         'https://res.cloudinary.com/demo/image/upload/plot3-main.jpg',
-      ],
-      amenities: ['NA Converted', 'Road Frontage', 'Clear Title', 'Bore Well'],
+      ]),
+      amenities: JSON.stringify(['NA Converted', 'Road Frontage', 'Clear Title', 'Bore Well']),
       agentPhone: '+919876543221',
       agentWhatsApp: '919876543221',
       limitedOffer: false,

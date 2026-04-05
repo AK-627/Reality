@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
-import { applyPhoneDiscount, formatINR } from "@/lib/utils";
+import { formatINR } from "@/lib/utils";
 import type { Listing } from "@/lib/types";
 
 import ImageGallery from "@/components/property/ImageGallery";
@@ -13,7 +12,41 @@ import EMICalculator from "@/components/property/EMICalculator";
 import SharePanel from "@/components/property/SharePanel";
 import NeighbourhoodSection from "@/components/property/NeighbourhoodSection";
 import ViewTracker from "@/components/property/ViewTracker";
+import SaveButton from "@/components/property/SaveButton";
 import MapEmbed from "@/components/map/MapEmbed";
+import BHKSelector from "./BHKSelector";
+
+
+import { headers } from "next/headers";
+async function getListingUrl(listingId: string): Promise<string> {
+  const headersList = await headers();
+  const host = headersList.get("host") ?? "localhost:3000";
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+  return `${protocol}://${host}/listings/${listingId}`;
+}
+
+function parseStringArraySafe(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((v) => String(v).trim()).filter(Boolean);
+  }
+  if (typeof value !== "string") return [];
+
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+
+  if (!trimmed.startsWith("[")) {
+    return [trimmed.replace(/^"|"$/g, "").trim()].filter(Boolean);
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    return Array.isArray(parsed)
+      ? parsed.map((v) => String(v).trim()).filter(Boolean)
+      : [trimmed.replace(/^[\[\]"]+|[\[\]"]+$/g, "").trim()].filter(Boolean);
+  } catch {
+    return [trimmed.replace(/^[\[\]"]+|[\[\]"]+$/g, "").trim()].filter(Boolean);
+  }
+}
 
 // ─── Property type label ──────────────────────────────────────────────────────
 
@@ -30,11 +63,57 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+function parseBlueprintVariantsSafe(value: unknown): Listing["blueprintVariants"] {
+  if (value == null) return [];
+  const rows =
+    Array.isArray(value)
+      ? value
+      : typeof value === "string"
+      ? (() => {
+          try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        })()
+      : [];
+
+  return rows.reduce<NonNullable<Listing["blueprintVariants"]>>((acc, item, index) => {
+      if (!item || typeof item !== "object") return acc;
+      const row = item as Record<string, unknown>;
+      const imageUrl = typeof row.imageUrl === "string" ? row.imageUrl.trim() : "";
+      if (!imageUrl) return acc;
+      const areaRaw = row.area;
+      const area =
+        typeof areaRaw === "number"
+          ? areaRaw
+          : typeof areaRaw === "string" && areaRaw.trim()
+          ? Number(areaRaw)
+          : undefined;
+      acc.push({
+        id: typeof row.id === "string" && row.id.trim() ? row.id.trim() : `bp_${index + 1}`,
+        bhk: typeof row.bhk === "string" && row.bhk.trim() ? row.bhk.trim() : undefined,
+        layoutName:
+          typeof row.layoutName === "string" && row.layoutName.trim()
+            ? row.layoutName.trim()
+            : undefined,
+        area: Number.isFinite(area as number) ? area : undefined,
+        areaUnit: row.areaUnit === "sqm" ? "sqm" : row.areaUnit === "sqft" ? "sqft" : undefined,
+        imageUrl,
+      });
+      return acc;
+    }, []);
+}
+
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { id } = await params;
 
+  if (!id || typeof id !== "string") {
+    notFound();
+  }
+
   // Determine auth state for phone discount
-  let phoneVerified = false;
   let userId: string | null = null;
 
   try {
@@ -47,7 +126,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
         select: { id: true, phoneVerified: true },
       });
       if (user) {
-        phoneVerified = user.phoneVerified;
         userId = user.id;
       }
     }
@@ -68,6 +146,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const listingUrl = await getListingUrl(id);
+
   const constructionStatus =
     raw.yearBuilt != null
       ? ("READY_TO_MOVE" as const)
@@ -84,7 +164,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     title: raw.title,
     description: raw.description,
     price: raw.price,
-    propertyType: raw.propertyType,
+    propertyType: raw.propertyType as Listing["propertyType"],
     bedrooms: raw.bedrooms ?? undefined,
     bathrooms: raw.bathrooms ?? undefined,
     address: raw.address,
@@ -92,8 +172,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     city: raw.city,
     lat: raw.lat ?? undefined,
     lng: raw.lng ?? undefined,
-    images: raw.images,
-    amenities: raw.amenities,
+    images: parseStringArraySafe(raw.images),
+    amenities: parseStringArraySafe(raw.amenities),
     agentPhone: raw.agentPhone,
     agentWhatsApp: raw.agentWhatsApp,
     builder: raw.builder
@@ -118,19 +198,14 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     yearBuilt: raw.yearBuilt ?? undefined,
     possessionDate: raw.possessionDate ?? undefined,
     constructionStatus,
+    blueprintUrl: (raw as any).blueprintUrl ?? undefined,
+    bhkOptions: parseStringArraySafe((raw as any).bhkOptions),
+    blueprintVariants: parseBlueprintVariantsSafe((raw as any).blueprintVariants),
+    size: (raw as any).size ?? undefined,
+    sizeUnit: (raw as any).sizeUnit ?? undefined,
     createdAt: raw.createdAt.toISOString(),
     updatedAt: raw.updatedAt.toISOString(),
   };
-
-  if (phoneVerified) {
-    listing.discountedPrice = applyPhoneDiscount(raw.price);
-  }
-
-  // Build canonical URL for sharing
-  const headersList = await headers();
-  const host = headersList.get("host") ?? "localhost:3000";
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const listingUrl = `${protocol}://${host}/listings/${listing.id}`;
 
   const constructionLabel =
     constructionStatus === "READY_TO_MOVE"
@@ -156,26 +231,15 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             <h1 id="property-title" className="text-2xl md:text-3xl font-bold text-black leading-tight">
               {listing.title}
             </h1>
-            <SharePanel listingTitle={listing.title} listingUrl={listingUrl} />
+            <div className="flex items-center gap-2">
+              <SaveButton listingId={listing.id} initialSaved={isSaved} />
+              <SharePanel listingTitle={listing.title} listingUrl={listingUrl} />
+            </div>
           </div>
 
           {/* Price */}
           <div className="flex flex-wrap items-baseline gap-3 mb-4">
             <span className="text-2xl font-bold text-black">{formatINR(listing.price)}</span>
-            {listing.discountedPrice != null && (
-              <>
-                <span className="text-base text-grey-500 line-through">{formatINR(listing.price)}</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-grey-100 rounded text-sm font-semibold text-black">
-                  {formatINR(listing.discountedPrice)}
-                  <span className="text-xs font-normal text-grey-500">member price</span>
-                </span>
-              </>
-            )}
-            {!phoneVerified && (
-              <span className="text-xs text-grey-500">
-                Verify your phone to unlock a 1% member discount
-              </span>
-            )}
           </div>
 
           {/* Badges */}
@@ -237,6 +301,12 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 <dd className="text-base font-semibold text-black">{listing.builder.name}</dd>
               </div>
             )}
+            {listing.size != null && (
+              <div className="bg-grey-50 border border-grey-200 rounded-lg p-3">
+                <dt className="text-xs text-grey-500 mb-0.5">Size</dt>
+                <dd className="text-base font-semibold text-black">{listing.size} {listing.sizeUnit}</dd>
+              </div>
+            )}
           </dl>
         </section>
 
@@ -250,6 +320,20 @@ export default async function PropertyDetailPage({ params }: PageProps) {
           </p>
         </section>
 
+        {/* ── BHK Options ── */}
+        {((listing.bhkOptions && listing.bhkOptions.length > 0) || (listing.blueprintVariants && listing.blueprintVariants.length > 0) || listing.blueprintUrl) && (
+          <section className="mb-8" aria-labelledby="bhk-heading">
+            <h2 id="bhk-heading" className="text-xl font-semibold text-black mb-3">
+              Available Configurations
+            </h2>
+            <BHKSelector
+              bhkOptions={listing.bhkOptions ?? []}
+              blueprintUrl={listing.blueprintUrl}
+              blueprintVariants={listing.blueprintVariants ?? []}
+            />
+          </section>
+        )}
+
         {/* ── Amenities ── */}
         {listing.amenities.length > 0 && (
           <section className="mb-8" aria-labelledby="amenities-heading">
@@ -258,10 +342,10 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             </h2>
             <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {listing.amenities.map((amenity) => (
-                <li key={amenity} className="flex items-center gap-2 text-sm text-grey-700">
+                <li key={amenity} className="flex items-center gap-2 text-sm font-medium text-grey-700 bg-grey-50 border border-grey-200 rounded-lg px-3 py-2 hover:bg-grey-100 hover:border-grey-300 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
-                    className="w-4 h-4 flex-shrink-0 text-black" aria-hidden="true">
+                    className="w-4 h-4 flex-shrink-0 text-grey-500" aria-hidden="true">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   {amenity}
@@ -329,3 +413,5 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     </>
   );
 }
+
+

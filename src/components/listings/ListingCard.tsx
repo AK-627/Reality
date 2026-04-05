@@ -131,7 +131,24 @@ export default function ListingCard({
   const [saved, setSaved] = useState(listing.isSaved);
   const [imgError, setImgError] = useState(false);
 
-  const primaryImage = !imgError && listing.images.length > 0 ? listing.images[0] : null;
+  // Helper to check if a string is a valid image URL (http/https or local /images/)
+  function isValidImageUrl(url: string | undefined): boolean {
+    if (!url || typeof url !== "string") return false;
+    const cleanUrl = url.replace(/^"|"$/g, '').trim();
+    if (cleanUrl.startsWith("/images/")) return true;
+    try {
+      const u = new URL(cleanUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+
+  // Find the first valid image URL (strip quotes if present)
+  const validImage = !imgError && Array.isArray(listing.images)
+    ? listing.images.map((img) => typeof img === 'string' ? img.replace(/^"|"$/g, '').trim() : '').find((img) => isValidImageUrl(img))
+    : null;
+  const primaryImage = validImage || null;
 
   function handleSaveClick(e: React.MouseEvent) {
     e.preventDefault();
@@ -154,16 +171,16 @@ export default function ListingCard({
       : null;
 
   return (
-    <article className="group relative bg-white border border-grey-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+    <article className="group relative bg-white border border-grey-200 rounded-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out">
       {/* Image */}
-      <Link href={`/listings/${listing.id}`} className="block relative aspect-[4/3] bg-grey-100">
+      <Link href={`/listings/${listing.id}`} className="block relative aspect-[4/3] bg-grey-100 overflow-hidden">
         {primaryImage ? (
           <Image
             src={primaryImage}
             alt={listing.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
+            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -203,7 +220,7 @@ export default function ListingCard({
           onClick={handleSaveClick}
           aria-label={saved ? "Remove from saved" : "Save property"}
           aria-pressed={saved}
-          className="absolute top-1 right-1 min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-grey-200 transition-colors"
+          className="absolute top-1 right-1 min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-grey-200 hover:scale-110 transition-all duration-200"
         >
           {saved ? <HeartFilledIcon /> : <HeartOutlineIcon />}
         </button>
@@ -214,16 +231,6 @@ export default function ListingCard({
         {/* Price row */}
         <div className="flex items-baseline gap-2 mb-1">
           <span className="text-lg font-bold text-black">{formatINR(listing.price)}</span>
-          {listing.discountedPrice != null && (
-            <span className="text-sm font-semibold text-grey-600 line-through">
-              {formatINR(listing.price)}
-            </span>
-          )}
-          {listing.discountedPrice != null && (
-            <span className="text-sm font-bold text-black bg-grey-100 px-1.5 py-0.5 rounded">
-              {formatINR(listing.discountedPrice)} <span className="text-xs font-normal text-grey-500">member</span>
-            </span>
-          )}
         </div>
 
         {/* Title */}

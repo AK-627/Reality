@@ -32,12 +32,12 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "User not found", code: "NOT_FOUND" }, { status: 404 });
     }
 
-    const existing: string[] = Array.isArray(user.recentlyViewed) ? (user.recentlyViewed as string[]) : [];
+    const existing: string[] = user.recentlyViewed ? JSON.parse(user.recentlyViewed) : [];
     const updated = [listingId, ...existing.filter((id) => id !== listingId)].slice(0, MAX_AUTH);
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { recentlyViewed: updated },
+      data: { recentlyViewed: JSON.stringify(updated) },
     });
 
     return NextResponse.json({ ok: true });
@@ -57,7 +57,7 @@ export async function DELETE() {
 
     await prisma.user.update({
       where: { email: session.user.email },
-      data: { recentlyViewed: [] },
+      data: { recentlyViewed: JSON.stringify([]) },
     });
 
     return NextResponse.json({ ok: true });

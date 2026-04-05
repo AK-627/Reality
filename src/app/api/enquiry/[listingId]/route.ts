@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { sendEnquiryNotification, sendEnquiryConfirmation } from "@/lib/email";
 
 export async function POST(
   request: NextRequest,
@@ -6,6 +8,8 @@ export async function POST(
 ) {
   try {
     const { listingId } = await params;
+    console.log("[Enquiry] POST received for listingId:", listingId);
+    console.log("[Enquiry] ENV check — RESEND_API_KEY set:", !!process.env.RESEND_API_KEY, "| ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
     const body = await request.json().catch(() => ({}));
 
     const { name, email, phone, message } = body as Record<string, string>;
@@ -36,17 +40,64 @@ export async function POST(
       );
     }
 
-    // Log the enquiry (no actual email sending)
-    console.log("[Enquiry]", {
-      listingId,
-      name: name.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      message: message.trim(),
-      receivedAt: new Date().toISOString(),
+    // Store enquiry in database
+    const enquiry = await prisma.enquiry.create({
+      data: {
+        listingId,
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        message: message.trim(),
+      },
+      include: {
+        listing: {
+          select: {
+            title: true,
+            agentPhone: true,
+            agentWhatsApp: true,
+          },
+        },
+      },
     });
 
-    return NextResponse.json({ message: "Enquiry received. We will get back to you shortly." });
+    // Send email notifications — await so errors show in terminal
+    const [notifyResult, confirmResult] = await Promise.allSettled([
+      sendEnquiryNotification({
+        name: enquiry.name,
+        email: enquiry.email,
+        phone: enquiry.phone,
+        message: enquiry.message,
+        listingTitle: enquiry.listing.title,
+        listingId,
+      }),
+      sendEnquiryConfirmation(enquiry.email, enquiry.name, enquiry.listing.title),
+    ]);
+
+    if (notifyResult.status === "rejected") {
+      console.error("[Enquiry] Admin notification failed:", notifyResult.reason);
+    } else {
+      console.log("[Enquiry] Admin notification sent OK");
+    }
+    if (confirmResult.status === "rejected") {
+      console.error("[Enquiry] Customer confirmation failed:", confirmResult.reason);
+    } else {
+      console.log("[Enquiry] Customer confirmation sent OK");
+    }
+
+    console.log("[Enquiry Created]", {
+      id: enquiry.id,
+      listingId,
+      name: enquiry.name,
+      email: enquiry.email,
+      phone: enquiry.phone,
+      message: enquiry.message,
+      createdAt: enquiry.createdAt,
+    });
+
+    return NextResponse.json({ 
+      message: "Enquiry received. We will get back to you shortly.",
+      enquiryId: enquiry.id 
+    });
   } catch (error) {
     console.error("[POST /api/enquiry/[listingId]]", error);
     return NextResponse.json(

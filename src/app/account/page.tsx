@@ -174,21 +174,14 @@ function PhoneVerificationSection({
 
       {step !== "verified" && (
         <p className="text-sm text-grey-500 mb-5">
-          Verify your phone number to unlock a{" "}
-          <span className="font-semibold text-black">1% discount</span> on all listed property
-          prices — exclusive to verified members.
+          Verify your phone number to confirm your identity.
         </p>
       )}
 
       {step === "verified" && (
         <div className="flex items-center gap-2 mt-2">
           <span className="text-sm font-medium text-black">Phone verified</span>
-          <span className="text-green-600 text-base">✓</span>
-          {session?.user?.email && (
-            <span className="text-sm text-grey-500 ml-1">
-              — your 1% member discount is active
-            </span>
-          )}
+          <span className="text-green-600 text-base">&#10003;</span>
         </div>
       )}
 

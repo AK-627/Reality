@@ -1,10 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
-import { applyPhoneDiscount } from "@/lib/utils";
 import type { Listing, ListingListResponse } from "@/lib/types";
 
 const PAGE_SIZE = 12;
+
+function parseJsonSafe<T>(value: unknown, fallback: T): T {
+  if (value == null) return fallback;
+  if (typeof value !== "string") return fallback;
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function parseStringArraySafe(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map((v) => String(v).trim()).filter(Boolean);
+  if (typeof value !== "string") return [];
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+  if (!trimmed.startsWith("[")) return [trimmed.replace(/^"|"$/g, "").trim()].filter(Boolean);
+  return parseJsonSafe<string[]>(trimmed, [])
+    .map((v) => String(v).trim())
+    .filter(Boolean);
+}
+
+function normalizeBlueprintVariants(value: unknown): Listing["blueprintVariants"] {
+  const rows = Array.isArray(value) ? value : parseJsonSafe<unknown[]>(value, []);
+  return rows.reduce<NonNullable<Listing["blueprintVariants"]>>((acc, item, index) => {
+      if (!item || typeof item !== "object") return acc;
+      const row = item as Record<string, unknown>;
+      const imageUrl = typeof row.imageUrl === "string" ? row.imageUrl.trim() : "";
+      if (!imageUrl) return acc;
+      const areaRaw = row.area;
+      const area =
+        typeof areaRaw === "number"
+          ? areaRaw
+          : typeof areaRaw === "string" && areaRaw.trim()
+          ? Number(areaRaw)
+          : undefined;
+      acc.push({
+        id: typeof row.id === "string" && row.id.trim() ? row.id.trim() : `bp_${index + 1}`,
+        bhk: typeof row.bhk === "string" && row.bhk.trim() ? row.bhk.trim() : undefined,
+        layoutName:
+          typeof row.layoutName === "string" && row.layoutName.trim()
+            ? row.layoutName.trim()
+            : undefined,
+        area: Number.isFinite(area as number) ? area : undefined,
+        areaUnit: row.areaUnit === "sqm" ? "sqm" : row.areaUnit === "sqft" ? "sqft" : undefined,
+        imageUrl,
+      });
+      return acc;
+    }, []);
+}
 
 function mapListing(
   raw: {
@@ -12,7 +61,7 @@ function mapListing(
     title: string;
     description: string;
     price: number;
-    propertyType: "APARTMENT" | "VILLA" | "PLOT" | "COMMERCIAL";
+    propertyType: string;
     bedrooms: number | null;
     bathrooms: number | null;
     address: string;
@@ -20,8 +69,8 @@ function mapListing(
     city: string;
     lat: number | null;
     lng: number | null;
-    images: string[];
-    amenities: string[];
+    images: string;
+    amenities: string;
     agentPhone: string;
     agentWhatsApp: string;
     available: boolean;
@@ -31,13 +80,17 @@ function mapListing(
     underrated: boolean;
     yearBuilt: number | null;
     possessionDate: string | null;
+    blueprintUrl?: string | null;
+    bhkOptions?: string | null;
+    blueprintVariants?: string | null;
+    size?: number | null;
+    sizeUnit?: string | null;
     createdAt: Date;
     updatedAt: Date;
     builder?: { id: string; name: string; slug: string; logoUrl: string | null } | null;
     floorPlans?: { id: string; imageUrl: string; order: number }[];
     savedBy?: { userId: string }[];
   },
-  phoneVerified: boolean,
   userId: string | null
 ): Listing {
   const constructionStatus =
@@ -56,7 +109,7 @@ function mapListing(
     title: raw.title,
     description: raw.description,
     price: raw.price,
-    propertyType: raw.propertyType,
+    propertyType: raw.propertyType as Listing["propertyType"],
     bedrooms: raw.bedrooms ?? undefined,
     bathrooms: raw.bathrooms ?? undefined,
     address: raw.address,
@@ -64,8 +117,8 @@ function mapListing(
     city: raw.city,
     lat: raw.lat ?? undefined,
     lng: raw.lng ?? undefined,
-    images: raw.images,
-    amenities: raw.amenities,
+    images: parseStringArraySafe(raw.images),
+    amenities: parseStringArraySafe(raw.amenities),
     agentPhone: raw.agentPhone,
     agentWhatsApp: raw.agentWhatsApp,
     builder: raw.builder
@@ -90,13 +143,14 @@ function mapListing(
     yearBuilt: raw.yearBuilt ?? undefined,
     possessionDate: raw.possessionDate ?? undefined,
     constructionStatus,
+    blueprintUrl: raw.blueprintUrl ?? undefined,
+    bhkOptions: parseStringArraySafe(raw.bhkOptions),
+    blueprintVariants: normalizeBlueprintVariants(raw.blueprintVariants),
+    size: raw.size ?? undefined,
+    sizeUnit: (raw.sizeUnit as Listing["sizeUnit"]) ?? undefined,
     createdAt: raw.createdAt.toISOString(),
     updatedAt: raw.updatedAt.toISOString(),
   };
-
-  if (phoneVerified) {
-    listing.discountedPrice = applyPhoneDiscount(raw.price);
-  }
 
   return listing;
 }
@@ -196,7 +250,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Determine auth state
-    let phoneVerified = false;
     let userId: string | null = null;
 
     try {
@@ -207,7 +260,6 @@ export async function GET(request: NextRequest) {
           select: { id: true, phoneVerified: true },
         });
         if (user) {
-          phoneVerified = user.phoneVerified;
           userId = user.id;
         }
       }
@@ -233,7 +285,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     const listings = rawListings.map((l: Parameters<typeof mapListing>[0]) =>
-      mapListing(l as Parameters<typeof mapListing>[0], phoneVerified, userId)
+      mapListing(l as Parameters<typeof mapListing>[0], userId)
     );
 
     const response: ListingListResponse = {

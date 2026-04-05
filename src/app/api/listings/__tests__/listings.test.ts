@@ -88,6 +88,22 @@ function applyFilters(listings: RawListing[], params: FilterParams): RawListing[
   });
 }
 
+function applySort(listings: RawListing[], sort: string): RawListing[] {
+  const sorted = [...listings];
+  switch (sort) {
+    case "price_asc":
+      return sorted.sort((a, b) => a.price - b.price);
+    case "price_desc":
+      return sorted.sort((a, b) => b.price - a.price);
+    case "limited_offers":
+      return sorted.filter((l) => l.limitedOffer).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    case "underrated":
+      return sorted.filter((l) => l.underrated).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    default:
+      return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+}
+
 // ─── Arbitraries ─────────────────────────────────────────────────────────────
 
 const propertyTypes: PropertyType[] = ["APARTMENT", "VILLA", "PLOT", "COMMERCIAL"];
@@ -294,6 +310,61 @@ describe("Property 4: Filter clear round-trip — clearing all filters restores 
           }
         }
       ),
+      { numRuns: 100 }
+    );
+  });
+});
+
+// ─── Property 7: Sort correctness ─────────────────────────────────
+
+// Feature: uk-realty-website, Property 7: Sort correctness
+// **Validates: Requirements 14.3, 14.4, 14.5, 14.6**
+
+describe("Property 7: Sort correctness", () => {
+  it("price_asc produces ascending order", () => {
+    fc.assert(
+      fc.property(listingsDatasetArb, (listings) => {
+        const sorted = applySort(listings, "price_asc");
+        for (let i = 1; i < sorted.length; i++) {
+          expect(sorted[i - 1].price).toBeLessThanOrEqual(sorted[i].price);
+        }
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  it("price_desc produces descending order", () => {
+    fc.assert(
+      fc.property(listingsDatasetArb, (listings) => {
+        const sorted = applySort(listings, "price_desc");
+        for (let i = 1; i < sorted.length; i++) {
+          expect(sorted[i - 1].price).toBeGreaterThanOrEqual(sorted[i].price);
+        }
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  it("limited_offers only shows limitedOffer=true listings", () => {
+    fc.assert(
+      fc.property(listingsDatasetArb, (listings) => {
+        const sorted = applySort(listings, "limited_offers");
+        for (const l of sorted) {
+          expect(l.limitedOffer).toBe(true);
+        }
+      }),
+      { numRuns: 100 }
+    );
+  });
+
+  it("underrated only shows underrated=true listings", () => {
+    fc.assert(
+      fc.property(listingsDatasetArb, (listings) => {
+        const sorted = applySort(listings, "underrated");
+        for (const l of sorted) {
+          expect(l.underrated).toBe(true);
+        }
+      }),
       { numRuns: 100 }
     );
   });
