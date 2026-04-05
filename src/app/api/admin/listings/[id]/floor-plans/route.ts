@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 // Simple admin check — in production, add a proper role field to User
 async function isAdmin(email: string): Promise<boolean> {
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });

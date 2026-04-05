@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const SAME_RESPONSE = NextResponse.json(

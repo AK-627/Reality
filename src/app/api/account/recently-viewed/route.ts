@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const MAX_AUTH = 20;
 
 // PATCH — prepend a listing ID to the user's recently viewed list

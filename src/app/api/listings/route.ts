@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import type { Listing, ListingListResponse } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 const PAGE_SIZE = 12;
 
 function parseJsonSafe<T>(value: unknown, fallback: T): T {

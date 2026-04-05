@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import prisma from "@/lib/prisma";
 import type { Listing, ListingDetailResponse } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 function parseJsonSafe<T>(value: unknown, fallback: T): T {
   if (value == null) return fallback;
   if (typeof value !== "string") return fallback;

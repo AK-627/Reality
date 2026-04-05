@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 async function isAdmin(email: string): Promise<boolean> {
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true } });
   return !!user;

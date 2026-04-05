@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const E164_REGEX = /^\+[1-9]\d{6,14}$/;
 
 export async function POST(req: NextRequest) {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 function slugify(name: string): string {
   return name
     .toLowerCase()

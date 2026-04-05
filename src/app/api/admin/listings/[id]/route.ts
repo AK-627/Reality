@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 function normalizeBlueprintVariants(value: unknown) {
   if (!Array.isArray(value)) return [];
   return value.reduce((acc: Array<{
