@@ -113,15 +113,6 @@ describe("ListingCard — unit tests", () => {
     expect(screen.getByRole("checkbox")).toBeInTheDocument();
   });
 
-  it("renders discounted price badge when discountedPrice is provided", () => {
-    render(
-      <ListingCard
-        listing={makeListing({ price: 8500000, discountedPrice: 8415000 })}
-      />
-    );
-    expect(screen.getByText(/member/i)).toBeInTheDocument();
-  });
-
   it("renders image fallback when images array is empty", () => {
     render(<ListingCard listing={makeListing({ images: [] })} />);
     // No img element with src — fallback SVG is shown
@@ -189,7 +180,6 @@ const listingArb = fc.record<Listing>({
     fc.constantFrom("READY_TO_MOVE" as const, "UNDER_CONSTRUCTION" as const),
     { nil: undefined }
   ),
-  discountedPrice: fc.option(fc.integer({ min: 100000, max: 500000000 }), { nil: undefined }),
   createdAt: fc.constant(new Date().toISOString()),
   updatedAt: fc.constant(new Date().toISOString()),
 });

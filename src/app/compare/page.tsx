@@ -35,11 +35,6 @@ function getCellValue(listing: Listing, key: RowKey): React.ReactNode {
       return (
         <span className="font-semibold">
           {formatINR(listing.price)}
-          {listing.discountedPrice && (
-            <span className="block text-xs text-grey-500 font-normal line-through">
-              {formatINR(listing.discountedPrice)}
-            </span>
-          )}
         </span>
       );
     case "propertyType":
