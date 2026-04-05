@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { applyPhoneDiscount } from "@/lib/utils";
 import type { Listing, SavedListingListResponse } from "@/lib/types";
 
 export async function GET() {
@@ -90,10 +89,6 @@ export async function GET() {
         createdAt: raw.createdAt.toISOString(),
         updatedAt: raw.updatedAt.toISOString(),
       };
-
-      if (user.phoneVerified) {
-        listing.discountedPrice = applyPhoneDiscount(raw.price);
-      }
 
       return listing;
     });
