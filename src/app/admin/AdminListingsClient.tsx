@@ -415,7 +415,8 @@ export default function AdminListingsClient({
       {showForm && (
         <>
           <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowForm(false)} />
-          <div className="fixed top-0 right-0 h-full w-full max-w-xl bg-white z-50 overflow-y-auto shadow-xl">
+          <div className="fixed top-0 right-0 h-full w-full sm:max-w-xl bg-white z-50 overflow-y-auto shadow-xl"
+               style={{ colorScheme: 'light' }}>
             <div className="sticky top-0 bg-white border-b border-grey-200 px-6 py-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-black">
                 {editId ? "Edit Listing" : "New Listing"}
@@ -441,7 +442,7 @@ export default function AdminListingsClient({
                 <select
                   value={form.propertyType}
                   onChange={(e) => update("propertyType", e.target.value)}
-                  className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
+                  className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-black min-h-[44px] [color-scheme:light]"
                 >
                   {["APARTMENT", "VILLA", "PLOT", "COMMERCIAL"].map((t) => (
                     <option key={t} value={t}>{t}</option>
@@ -473,7 +474,7 @@ export default function AdminListingsClient({
                 <input
                   type="url"
                   placeholder="https://maps.google.com/..."
-                  className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
+                  className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-black min-h-[44px] [color-scheme:light]"
                   onChange={(e) => {
                     const url = e.target.value.trim();
                     if (!url) return;
@@ -508,7 +509,7 @@ export default function AdminListingsClient({
                   multiple
                   accept="image/*"
                   onChange={handleFileUpload}
-                  className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
+                  className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-black min-h-[44px] [color-scheme:light]"
                 />
                 {form.images.length > 0 && (
                   <div className="mt-2">
@@ -644,7 +645,7 @@ export default function AdminListingsClient({
                         <select
                           value={variant.areaUnit}
                           onChange={(e) => updateBlueprintVariant(variant.id, "areaUnit", e.target.value)}
-                          className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
+                          className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-black min-h-[44px] [color-scheme:light]"
                         >
                           <option value="sqft">sqft</option>
                           <option value="sqm">sqm</option>
@@ -655,7 +656,7 @@ export default function AdminListingsClient({
                           type="file"
                           accept="image/*"
                           onChange={(e) => handleBlueprintVariantUpload(e, variant.id)}
-                          className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
+                          className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-black min-h-[44px] [color-scheme:light]"
                         />
                       </div>
                     </div>
@@ -683,7 +684,7 @@ export default function AdminListingsClient({
                   <select
                     value={form.sizeUnit}
                     onChange={(e) => update("sizeUnit", e.target.value)}
-                    className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]"
+                    className="w-full px-3 py-2.5 border border-grey-300 rounded text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-black min-h-[44px] [color-scheme:light]"
                   >
                     <option value="sqft">sqft</option>
                     <option value="acre">acre</option>
@@ -743,7 +744,7 @@ function Field({
   type?: string;
   multiline?: boolean;
 }) {
-  const cls = "w-full px-3 py-2.5 border border-grey-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-black min-h-[44px]";
+  const cls = "w-full px-3 py-2.5 border border-grey-300 rounded text-sm text-black bg-white focus:outline-none focus:ring-2 focus:ring-black min-h-[44px] [color-scheme:light]";
   return (
     <div>
       <label className="block text-xs font-medium text-grey-700 mb-1">{label}</label>

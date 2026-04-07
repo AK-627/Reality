@@ -6,6 +6,14 @@
 @tailwind utilities;
 
 @layer base {
+  /* Force light color scheme on all form inputs to prevent black text on mobile dark mode */
+  input, textarea, select {
+    color-scheme: light;
+    @apply text-black bg-white;
+  }
+}
+
+@layer base {
   *,
   *::before,
   *::after {
