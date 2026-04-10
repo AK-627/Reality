@@ -2,7 +2,6 @@
 const nextConfig = {
 	// Suppress build-time errors from routes that require runtime env vars
 	typescript: { ignoreBuildErrors: false },
-	eslint: { ignoreDuringBuilds: true },
 	// Tell Next.js to treat Prisma and other heavy packages as server-only
 	serverExternalPackages: ['@prisma/client', 'bcryptjs', 'twilio', 'resend'],
 	images: {

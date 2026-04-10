@@ -35,16 +35,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the contact submission
-    console.log("[Contact]", {
-      name: name.trim(),
-      email: email.trim(),
-      phone: phone.trim(),
-      subject: subject.trim(),
-      message: message.trim(),
-      receivedAt: new Date().toISOString(),
-    });
-
     return NextResponse.json({ message: "Thank you for reaching out. We will get back to you shortly." });
   } catch (error) {
     console.error("[POST /api/contact]", error);

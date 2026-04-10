@@ -314,7 +314,7 @@ const WA_MESSAGE = encodeURIComponent("Hi, I'd like to enquire about a property 
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-grey-900">
       {/* Page header */}
       <section className="border-b border-grey-200 bg-grey-50 py-12 px-4">
         <div className="max-w-5xl mx-auto">

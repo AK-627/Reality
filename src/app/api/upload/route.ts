@@ -3,6 +3,8 @@ import { v2 as cloudinary } from "cloudinary";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,6 +23,15 @@ export async function POST(req: NextRequest) {
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      return NextResponse.json(
+        { error: "Unsupported file type. Allowed: JPEG, PNG, WEBP, AVIF." },
+        { status: 400 }
+      );
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      return NextResponse.json({ error: "File size exceeds 5MB limit." }, { status: 400 });
     }
 
     // Convert file to base64

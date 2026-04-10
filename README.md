@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# UK Realty
+
+UK Realty is a full-stack real-estate platform built with Next.js (App Router), Prisma, and NextAuth.
+
+## Tech Stack
+
+- Next.js 16
+- React 19
+- Prisma ORM
+- PostgreSQL
+- NextAuth (credentials auth)
+- Tailwind CSS
+- Vitest + Testing Library
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create an env file:
+
+```bash
+cp .env.example .env
+```
+
+3. Run Prisma client generation and migrations as needed:
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+4. Start development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App runs at `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` - start dev server
+- `npm run build` - generate Prisma client and build production app
+- `npm run start` - start production server
+- `npm run lint` - run ESLint
+- `npm run test` - run Vitest once
+- `npm run test:watch` - run Vitest in watch mode
+- `npm run test:coverage` - run tests with coverage
 
-## Learn More
+## Required Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+See `.env.example` for the full list.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Security Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Never commit `.env`.
+- Configure `ADMIN_SESSION_SECRET` in production.
+- Set real API credentials for Twilio, Resend, and Cloudinary before enabling those features.
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT. See `LICENSE`.

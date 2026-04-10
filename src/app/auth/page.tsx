@@ -40,7 +40,7 @@ function AuthPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-grey-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-grey-50 dark:bg-grey-900 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight text-black">
@@ -89,7 +89,7 @@ function AuthPageInner() {
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-grey-50" />}>
+    <Suspense fallback={<div className="min-h-screen bg-grey-50 dark:bg-grey-900" />}>
       <AuthPageInner />
     </Suspense>
   );

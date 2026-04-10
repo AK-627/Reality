@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const isPlaceholder = !apiKey || apiKey === "your_resend_api_key" || apiKey.startsWith("re_placeholder");
 
     if (isPlaceholder) {
-      console.log(`[Password Reset] Reset link for ${normalizedEmail}: ${resetLink}`);
+      console.warn("[Password Reset] RESEND_API_KEY is not configured; reset email was not sent.");
     } else {
       const resend = new Resend(apiKey);
       await resend.emails.send({

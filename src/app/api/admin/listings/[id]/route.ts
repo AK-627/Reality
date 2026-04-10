@@ -44,9 +44,7 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('PUT request for listing', await params);
   if (!(await isAdminAuthenticated())) {
-    console.log('Not authenticated');
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
   const { id } = await params;
@@ -66,8 +64,6 @@ export async function PUT(
   const cleanBlueprintVariants = normalizeBlueprintVariants(blueprintVariants);
   const derivedBhkOptions = Array.from(new Set(cleanBlueprintVariants.map((row) => row.bhk).filter((v): v is string => Boolean(v))));
   const derivedPrimaryBlueprintUrl = cleanBlueprintVariants[0]?.imageUrl;
-
-  console.log('Updating listing', id, { title, images });
 
   try {
     // Ensure images is always a clean array of strings

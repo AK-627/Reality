@@ -15,16 +15,16 @@ vi.mock("next-auth/react", () => ({
 describe("Header", () => {
   it("renders the logo", () => {
     render(<Header />);
-    expect(screen.getByText("UK Realty")).toBeInTheDocument();
+    expect(screen.getAllByText("UK Realty").length).toBeGreaterThan(0);
   });
 
   it("renders desktop nav links", () => {
     render(<Header />);
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Listings")).toBeInTheDocument();
-    expect(screen.getByText("Builders")).toBeInTheDocument();
-    expect(screen.getByText("Contact")).toBeInTheDocument();
-    expect(screen.getByText("Saved")).toBeInTheDocument();
+    expect(screen.getAllByText("Home").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Listings").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Builders").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Contact").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Saved").length).toBeGreaterThan(0);
   });
 
   it("renders hamburger menu", () => {

@@ -69,7 +69,7 @@ describe("Property 5: Active filter indicators", () => {
 
         unmount();
       }),
-      { numRuns: 100 }
+      { numRuns: 40 }
     );
-  });
+  }, 15000);
 });

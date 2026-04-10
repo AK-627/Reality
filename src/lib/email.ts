@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+﻿import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -9,8 +9,6 @@ function isConfigured() {
   return !!(process.env.RESEND_API_KEY && ADMIN_EMAIL);
 }
 
-// ─── Enquiry notification to admin ───────────────────────────────────────────
-
 export async function sendEnquiryNotification(enquiry: {
   name: string;
   email: string;
@@ -20,11 +18,11 @@ export async function sendEnquiryNotification(enquiry: {
   listingId: string;
 }) {
   if (!isConfigured()) {
-    console.warn("[Email] Skipped — RESEND_API_KEY or ADMIN_EMAIL not set");
+    console.warn("[Email] Skipped: RESEND_API_KEY or ADMIN_EMAIL not set");
     return;
   }
   const listingUrl = `${process.env.NEXTAUTH_URL ?? ""}/listings/${enquiry.listingId}`;
-  const result = await resend.emails.send({
+  await resend.emails.send({
     from: FROM,
     to: ADMIN_EMAIL,
     subject: `New Enquiry: ${enquiry.listingTitle}`,
@@ -45,10 +43,7 @@ export async function sendEnquiryNotification(enquiry: {
       </div>
     `,
   });
-  console.log("[Email] Admin notification result:", JSON.stringify(result));
 }
-
-// ─── Enquiry confirmation to customer ────────────────────────────────────────
 
 export async function sendEnquiryConfirmation(to: string, customerName: string, listingTitle: string) {
   if (!isConfigured()) return;
@@ -69,8 +64,6 @@ export async function sendEnquiryConfirmation(to: string, customerName: string, 
   });
 }
 
-// ─── New listing notification to all users ───────────────────────────────────
-
 export async function sendNewListingNotifications(listing: {
   id: string;
   title: string;
@@ -82,7 +75,6 @@ export async function sendNewListingNotifications(listing: {
 }) {
   if (!isConfigured()) return;
 
-  // Dynamically import prisma to avoid circular deps
   const { default: prisma } = await import("@/lib/prisma");
   const users = await prisma.user.findMany({ select: { email: true, name: true } });
   if (users.length === 0) return;
@@ -92,10 +84,9 @@ export async function sendNewListingNotifications(listing: {
     ? `<img src="${listing.imageUrl}" alt="${listing.title}" style="width:100%;max-height:240px;object-fit:cover;border-radius:4px;margin-bottom:16px" />`
     : "";
 
-  // Send in batches of 50 to stay within Resend rate limits
-  const BATCH = 50;
-  for (let i = 0; i < users.length; i += BATCH) {
-    const batch = users.slice(i, i + BATCH);
+  const batchSize = 50;
+  for (let i = 0; i < users.length; i += batchSize) {
+    const batch = users.slice(i, i + batchSize);
     await Promise.allSettled(
       batch.map((user) =>
         resend.emails.send({

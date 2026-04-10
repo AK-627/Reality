@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         to: phone,
       });
     } else {
-      console.log(`[OTP] Code for ${phone}: ${otp}`);
+      console.warn("[OTP] Twilio credentials are not configured; OTP was generated but not sent.");
     }
 
     return NextResponse.json({ message: "OTP sent" }, { status: 200 });

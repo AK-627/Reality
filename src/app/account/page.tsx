@@ -34,7 +34,7 @@ export default function AccountPage() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen bg-grey-50">
+    <div className="min-h-screen bg-grey-50 dark:bg-grey-900">
       {/* Header */}
       <header className="bg-white border-b border-grey-200">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">

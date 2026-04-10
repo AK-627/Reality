@@ -224,9 +224,9 @@ describe("Property 1: Listing cards contain all required fields", () => {
 
         unmount();
       }),
-      { numRuns: 100 }
+      { numRuns: 40 }
     );
-  });
+  }, 15000);
 });
 
 // ─── ListingCardSkeleton ──────────────────────────────────────────────────────

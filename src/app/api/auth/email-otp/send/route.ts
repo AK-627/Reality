@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         `,
       });
     } else {
-      console.log(`[Email OTP] Code for ${normalizedEmail}: ${otp}`);
+      console.warn("[Email OTP] RESEND_API_KEY is not configured; OTP email was not sent.");
     }
 
     return NextResponse.json({ ok: true });
