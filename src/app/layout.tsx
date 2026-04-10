@@ -39,7 +39,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-white dark:bg-grey-900 text-grey-900 dark:text-grey-100 transition-colors`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-white dark:bg-grey-900 text-grey-900 dark:text-white transition-colors`}
       >
         <SessionProvider>
           <Header />

@@ -56,7 +56,7 @@ export default function HamburgerMenu({ navLinks }: HamburgerMenuProps) {
         aria-expanded={isOpen}
         aria-controls="mobile-nav-drawer"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="inline-flex flex-col justify-center items-center gap-1.5 min-h-[44px] min-w-[44px] p-2 text-black hover:bg-grey-100 rounded transition-colors"
+        className="inline-flex flex-col justify-center items-center gap-1.5 min-h-[44px] min-w-[44px] p-2 text-black dark:text-white hover:bg-grey-100 dark:hover:bg-grey-800 rounded transition-colors"
         data-testid="hamburger-button"
       >
         <span
@@ -88,18 +88,18 @@ export default function HamburgerMenu({ navLinks }: HamburgerMenuProps) {
         aria-modal="true"
         aria-label="Mobile navigation"
         data-testid="mobile-nav-drawer"
-        className={`fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white z-50 shadow-xl transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white dark:bg-grey-900 text-black dark:text-white z-50 shadow-xl transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Drawer header */}
-        <div className="flex items-center justify-between px-6 h-16 border-b border-grey-200">
-          <span className="font-bold text-lg text-black">UK Realty</span>
+        <div className="flex items-center justify-between px-6 h-16 border-b border-grey-200 dark:border-grey-700">
+          <span className="font-bold text-lg text-black dark:text-white">UK Realty</span>
           <button
             type="button"
             aria-label="Close menu"
             onClick={() => setIsOpen(false)}
-            className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-grey-600 hover:text-black hover:bg-grey-100 rounded transition-colors"
+            className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-grey-600 dark:text-white hover:text-black dark:hover:text-white hover:bg-grey-100 dark:hover:bg-grey-800 rounded transition-colors"
             data-testid="drawer-close-button"
           >
             <svg
@@ -127,7 +127,7 @@ export default function HamburgerMenu({ navLinks }: HamburgerMenuProps) {
               key={link.href}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className="flex items-center min-h-[44px] px-3 text-base font-medium text-grey-700 hover:text-black hover:bg-grey-100 rounded transition-colors"
+              className="flex items-center min-h-[44px] px-3 text-base font-medium text-grey-700 dark:text-white hover:text-black dark:hover:text-white hover:bg-grey-100 dark:hover:bg-grey-800 rounded transition-colors"
               data-testid={`mobile-nav-link-${link.label.toLowerCase()}`}
             >
               {link.label}
@@ -136,11 +136,11 @@ export default function HamburgerMenu({ navLinks }: HamburgerMenuProps) {
         </nav>
 
         {/* CTA at bottom of drawer */}
-        <div className="px-4 pt-2 border-t border-grey-200 mx-4">
+        <div className="px-4 pt-2 border-t border-grey-200 dark:border-grey-700 mx-4">
           <Link
             href="/contact"
             onClick={() => setIsOpen(false)}
-            className="flex items-center justify-center min-h-[44px] w-full px-4 text-sm font-semibold text-white bg-black hover:bg-grey-800 rounded transition-colors"
+            className="flex items-center justify-center min-h-[44px] w-full px-4 text-sm font-semibold text-white bg-black hover:bg-grey-800 dark:bg-white dark:text-black dark:hover:bg-grey-100 rounded transition-colors"
           >
             Contact Us
           </Link>

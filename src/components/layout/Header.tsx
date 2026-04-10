@@ -23,12 +23,12 @@ function AuthControls() {
   if (session?.user) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-grey-700 truncate max-w-[120px]">
+        <span className="text-sm font-medium text-grey-700 dark:text-white truncate max-w-[120px]">
           {session.user.name}
         </span>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="text-sm font-medium text-grey-600 hover:text-black transition-colors min-h-[44px] min-w-[44px] flex items-center"
+          className="text-sm font-medium text-grey-600 dark:text-white hover:text-black dark:hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center"
         >
           Logout
         </button>
@@ -39,7 +39,7 @@ function AuthControls() {
   return (
     <Link
       href="/auth"
-      className="text-sm font-medium text-grey-600 hover:text-black transition-colors min-h-[44px] min-w-[44px] flex items-center"
+      className="text-sm font-medium text-grey-600 dark:text-white hover:text-black dark:hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center"
     >
       Login
     </Link>
@@ -65,7 +65,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-grey-600 dark:text-grey-300 hover:text-black dark:hover:text-white transition-colors"
+                className="text-sm font-medium text-grey-600 dark:text-white hover:text-black dark:hover:text-white transition-colors"
               >
                 {link.label}
               </Link>

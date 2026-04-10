@@ -6,10 +6,17 @@
 @tailwind utilities;
 
 @layer base {
-  /* Force light color scheme on all form inputs to prevent black text on mobile dark mode */
+  /* Set predictable form colors in both themes. */
   input, textarea, select {
     color-scheme: light;
-    @apply text-black bg-white;
+    @apply text-grey-900 bg-white border border-grey-300;
+  }
+
+  .dark input,
+  .dark textarea,
+  .dark select {
+    color-scheme: dark;
+    @apply text-white bg-grey-800 border-grey-700 placeholder:text-grey-300;
   }
 }
 
@@ -26,7 +33,7 @@
   }
 
   body {
-    @apply text-grey-900 bg-white font-sans;
+    @apply text-grey-900 dark:text-white bg-white dark:bg-grey-900 font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -44,5 +51,34 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Global dark-mode contrast safety net for existing utility usage. */
+  .dark [class*="text-grey-"],
+  .dark [class*="text-gray-"] {
+    color: #ffffff !important;
+  }
+
+  .dark [class*="text-black"]:not([class*="bg-white"]):not([class*="dark:text-black"]) {
+    color: #ffffff !important;
+  }
+
+  .dark [class*="hover:text-black"]:hover {
+    color: #ffffff !important;
+  }
+
+  .dark [class*="bg-white"] {
+    background-color: #171717 !important;
+  }
+
+  .dark [class*="bg-grey-50"],
+  .dark [class*="bg-grey-100"] {
+    background-color: #262626 !important;
+  }
+
+  .dark [class*="border-grey-200"],
+  .dark [class*="border-grey-300"],
+  .dark [class*="border-grey-400"] {
+    border-color: #404040 !important;
   }
 }
